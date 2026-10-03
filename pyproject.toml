@@ -1,0 +1,47 @@
+[project]
+name = "medical-jiwer"
+version = "0.1.0"
+description = "Occurrence-aware clinical ASR evaluation built on JiWER"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["asr", "wer", "medical", "clinical", "jiwer"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "jiwer>=4.0.0,<5",
+]
+
+[project.scripts]
+medical-jiwer = "medical_jiwer.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/medical_jiwer"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/README.md", "/LICENSE", "/pyproject.toml"]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.11", "build>=1.2", "twine>=6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

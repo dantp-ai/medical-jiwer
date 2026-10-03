@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local benchmark plans (do not commit)
+docs/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# macOS Finder metadata
+.DS_Store
