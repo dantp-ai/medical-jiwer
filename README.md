@@ -72,4 +72,7 @@ uv run pytest
 uv build
 ```
 
+Pushing a `v<version>` tag matching `pyproject.toml` runs CI and prepares a draft
+GitHub release with a wheel and source archive. Local `docs/` are excluded.
+
 Licensed under [Apache-2.0](LICENSE).

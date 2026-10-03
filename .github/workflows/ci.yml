@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          python -m pip install uv
+          uv sync --frozen --group dev --python "${{ matrix.python }}"
+      - name: Check style and test
+        run: |
+          uv run --no-sync ruff check src tests
+          uv run --no-sync ruff format --check src tests
+          uv run --no-sync pytest
+      - name: Build and check package
+        if: matrix.python == '3.12'
+        run: |
+          uv build
+          uv run --no-sync twine check dist/*
+      - uses: actions/upload-artifact@v7
+        if: matrix.python == '3.12'
+        with:
+          name: distributions
+          path: dist/*
+          if-no-files-found: error

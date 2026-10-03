@@ -1,0 +1,51 @@
+name: GitHub release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Check tag matches package version
+        run: |
+          python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          if os.environ["GITHUB_REF_NAME"] != f"v{version}":
+              raise SystemExit("Release tag must match pyproject.toml version")
+          PY
+      - name: Build distributions
+        run: |
+          python -m pip install uv
+          uv sync --frozen --group dev
+          uv build
+          uv run --no-sync twine check dist/*
+      - name: Smoke test installed wheel
+        run: |
+          python -m venv /tmp/medical-jiwer-release
+          /tmp/medical-jiwer-release/bin/python -m pip install dist/*.whl
+          /tmp/medical-jiwer-release/bin/medical-jiwer --version
+          /tmp/medical-jiwer-release/bin/python -c 'from medical_jiwer import ClinicalScorer; assert ClinicalScorer().score("a", "a").wer == 0'
+      - name: Create draft release with wheel and source archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --draft --generate-notes --title "$GITHUB_REF_NAME"
