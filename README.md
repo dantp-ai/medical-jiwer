@@ -1,5 +1,7 @@
 # medical-jiwer
 
+![medical-jiwer logo](assets/logo/logo-lockup.svg)
+
 Clinical speech-recognition evaluation built on [JiWER](https://github.com/jitsi/jiwer).
 Requires Python 3.11+.
 
